@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SDGs Gender Equality</title>
+
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      overflow:hidden;
+      background:#87ceeb;
+    }
+
+    /* MAIN GAME AREA */
+    .game-container{
+      position:relative;
+      width:100vw;
+      height:100vh;
+      overflow:hidden;
+
+      background:
+        linear-gradient(to bottom,
+          #87ceeb 0%,
+          #b8ecff 45%,
+          #7dcf67 46%,
+          #6bb858 100%);
+    }
+
+    /* HEADER */
+    .top-bar{
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      padding:20px;
+      z-index:20;
+    }
+
+    .title{
+      font-size:34px;
+      font-weight:900;
+      color:#143642;
+      text-shadow:2px 2px 4px rgba(255,255,255,0.6);
+    }
+
+    .score-box{
+      background:rgba(255,255,255,0.85);
+      padding:14px 18px;
+      border-radius:14px;
+      font-weight:bold;
+      color:#143642;
+      font-size:20px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    }
+
+    /* DECORATIONS */
+    .sun{
+      position:absolute;
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      background:#ffd54f;
+      top:70px;
+      right:180px;
+      box-shadow:0 0 40px rgba(255,213,79,0.7);
+    }
+
+    .cloud{
+      position:absolute;
+      background:white;
+      border-radius:50px;
+      opacity:0.85;
+    }
+
+    .cloud::before,
+    .cloud::after{
+      content:"";
+      position:absolute;
+      background:white;
+      border-radius:50%;
+    }
+
+    .cloud1{
+      width:150px;
+      height:50px;
+      top:90px;
+      left:15%;
+    }
+
+    .cloud1::before{
+      width:70px;
+      height:70px;
+      left:20px;
+      top:-25px;
+    }
+
+    .cloud1::after{
+      width:80px;
+      height:80px;
+      right:20px;
+      top:-35px;
+    }
+
+    /* VILLAGE AREA */
+    .village{
+      position:absolute;
+      bottom:0;
+      width:100%;
+      height:70%;
+    }
+
+    /* HUTS */
+    .hut{
+      position:absolute;
+      width:120px;
+      height:120px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+
+    .hut:hover{
+      transform:scale(1.08);
+    }
+
+    /* Roof */
+    .hut::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:0;
+      height:0;
+      border-left:60px solid transparent;
+      border-right:60px solid transparent;
+      border-bottom:55px solid #c78536;
+      filter:brightness(1.05);
+    }
+
+    /* House */
+    .hut::after{
+      content:"";
+      position:absolute;
+      bottom:0;
+      left:15px;
+      width:90px;
+      height:70px;
+      background:#d6b36d;
+      border:4px solid #8a6230;
+      border-radius:6px;
+    }
+
+    /* Door */
+    .door{
+      position:absolute;
+      width:24px;
+      height:42px;
+      background:#6d3d18;
+      bottom:0;
+      left:48px;
+      z-index:5;
+      border-radius:4px 4px 0 0;
+    }
+
+    /* QUESTION MODAL */
+    .modal{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,0.55);
+      z-index:50;
+    }
+
+    .question-box{
+      width:90%;
+      max-width:700px;
+      background:white;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 10px 25px rgba(0,0,0,0.3);
+      animation:pop 0.25s ease;
+    }
+
+    @keyframes pop{
+      from{
+        transform:scale(0.8);
+        opacity:0;
+      }
+      to{
+        transform:scale(1);
+        opacity:1;
+      }
+    }
+
+    .question-title{
+      font-size:28px;
+      font-weight:bold;
+      margin-bottom:24px;
+      color:#163d4f;
+    }
+
+    .choices{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .choice-btn{
+      padding:16px;
+      border:none;
+      border-radius:12px;
+      background:#edf5ff;
+      cursor:pointer;
+      font-size:18px;
+      text-align:left;
+      transition:0.2s;
+      border:2px solid transparent;
+    }
+
+    .choice-btn:hover{
+      background:#d7e9ff;
+      transform:translateX(4px);
+    }
+
+    /* END SCREEN */
+    .end-screen{
+      position:absolute;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      text-align:center;
+      background:rgba(0,0,0,0.7);
+      z-index:100;
+      color:white;
+    }
+
+    .end-screen h1{
+      font-size:64px;
+      margin-bottom:20px;
+    }
+
+    .end-screen p{
+      font-size:28px;
+      margin-bottom:30px;
+    }
+
+    .action-btn{
+      padding:16px 34px;
+      font-size:24px;
+      border:none;
+      border-radius:14px;
+      background:#ff9800;
+      color:white;
+      cursor:pointer;
+      font-weight:bold;
+      transition:0.2s;
+      text-decoration:none;
+    }
+
+    .action-btn:hover{
+      transform:scale(1.08);
+      background:#f57c00;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="game-container">
+
+  <!-- HEADER -->
+  <div class="top-bar">
+    <div class="title">SDGs Gender Equality</div>
+
+    <div class="score-box">
+      Correct Answers:
+      <span id="score">0</span> / 10
+    </div>
+  </div>
+
+  <!-- DECOR -->
+  <div class="sun"></div>
+  <div class="cloud cloud1"></div>
+
+  <!-- VILLAGE -->
+  <div class="village" id="village">
+
+    <!-- 10 HUTS -->
+    <div class="hut" style="left:5%; top:15%;"><div class="door"></div></div>
+    <div class="hut" style="left:20%; top:5%;"><div class="door"></div></div>
+    <div class="hut" style="left:38%; top:18%;"><div class="door"></div></div>
+    <div class="hut" style="left:55%; top:8%;"><div class="door"></div></div>
+    <div class="hut" style="left:72%; top:18%;"><div class="door"></div></div>
+
+    <div class="hut" style="left:12%; top:48%;"><div class="door"></div></div>
+    <div class="hut" style="left:30%; top:55%;"><div class="door"></div></div>
+    <div class="hut" style="left:48%; top:45%;"><div class="door"></div></div>
+    <div class="hut" style="left:65%; top:58%;"><div class="door"></div></div>
+    <div class="hut" style="left:82%; top:48%;"><div class="door"></div></div>
+
+  </div>
+
+  <!-- QUESTION MODAL -->
+  <div class="modal" id="modal">
+    <div class="question-box">
+      <div class="question-title" id="questionText"></div>
+
+      <div class="choices" id="choicesContainer"></div>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div class="end-screen" id="endScreen">
+    <h1 id="endTitle"></h1>
+    <p id="endMessage"></p>
+
+    <button class="action-btn" id="endButton"></button>
+  </div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+question:"Why is equal education for girls important?",
+choices:[
+"Only boys need education",
+"Girls should not work",
+"Education gives equal opportunities",
+"Girls only need housework"
+],
+answer:2
+},
+
+{
+question:"What does gender equality mean?",
+choices:[
+"Men are more important",
+"Everyone has equal rights and opportunities",
+"Only women should lead",
+"Girls cannot study"
+],
+answer:1
+},
+
+{
+question:"Which is an example of gender equality?",
+choices:[
+"Equal pay for equal work",
+"Only men can vote",
+"Girls cannot attend school",
+"Only boys can play sports"
+],
+answer:0
+},
+
+{
+question:"Why should girls and boys share household work?",
+choices:[
+"Only girls should clean",
+"Only boys should rest",
+"Sharing work is fair",
+"Boys should avoid chores"
+],
+answer:2
+},
+
+{
+question:"What is an important goal of SDGs?",
+choices:[
+"Increase inequality",
+"Promote gender equality",
+"Limit education",
+"Reduce opportunities for girls"
+],
+answer:1
+},
+
+{
+question:"Why should women have leadership opportunities?",
+choices:[
+"They should not lead",
+"Leadership should be equal for everyone",
+"Only men can decide",
+"Women cannot manage teams"
+],
+answer:1
+},
+
+{
+question:"What helps create equality in schools?",
+choices:[
+"Equal treatment for all students",
+"Only boys answering questions",
+"Girls sitting separately",
+"Limiting girls' activities"
+],
+answer:0
+},
+
+{
+question:"What should workplaces provide?",
+choices:[
+"Unequal salaries",
+"Opportunities for everyone",
+"Only men promotions",
+"Fewer jobs for women"
+],
+answer:1
+},
+
+{
+question:"Why is respecting everyone important?",
+choices:[
+"It builds fairness and inclusion",
+"Only adults deserve respect",
+"Girls should stay silent",
+"Only boys should participate"
+],
+answer:0
+},
+
+{
+question:"What can communities do to support equality?",
+choices:[
+"Encourage equal participation",
+"Stop girls from studying",
+"Limit women's voices",
+"Give opportunities only to men"
+],
+answer:0
+}
+
+];
+
+const huts = document.querySelectorAll(".hut");
+
+const modal = document.getElementById("modal");
+const questionText = document.getElementById("questionText");
+const choicesContainer = document.getElementById("choicesContainer");
+
+const scoreEl = document.getElementById("score");
+
+const endScreen = document.getElementById("endScreen");
+const endTitle = document.getElementById("endTitle");
+const endMessage = document.getElementById("endMessage");
+const endButton = document.getElementById("endButton");
+
+let score = 0;
+let answeredCount = 0;
+
+huts.forEach((hut, index)=>{
+
+  hut.addEventListener("click", ()=>{
+
+    if(hut.dataset.done) return;
+
+    openQuestion(index, hut);
+
+  });
+
+});
+
+function openQuestion(index, hut){
+
+  const q = questions[index];
+
+  modal.style.display = "flex";
+
+  questionText.textContent = q.question;
+
+  choicesContainer.innerHTML = "";
+
+  q.choices.forEach((choice, choiceIndex)=>{
+
+    const btn = document.createElement("button");
+
+    btn.className = "choice-btn";
+
+    btn.textContent = choice;
+
+    btn.onclick = ()=>{
+
+      if(choiceIndex === q.answer){
+        score++;
+      }
+
+      answeredCount++;
+
+      scoreEl.textContent = score;
+
+      hut.dataset.done = "true";
+      hut.style.opacity = "0.45";
+      hut.style.filter = "grayscale(0.5)";
+
+      modal.style.display = "none";
+
+      checkGameEnd();
+    };
+
+    choicesContainer.appendChild(btn);
+
+  });
+
+}
+
+function checkGameEnd(){
+
+  if(answeredCount < 10) return;
+
+  endScreen.style.display = "flex";
+
+  if(score >= 8){
+
+    endTitle.textContent = "Proceed to Next Level!";
+    endMessage.textContent =
+      "Excellent work promoting equality in the village.";
+
+    endButton.textContent = "Next Level";
+
+    endButton.onclick = ()=>{
+      window.location.href = "level2.html";
+    };
+
+  }else{
+
+    endTitle.textContent = "Challenge Again";
+    endMessage.textContent =
+      "You need at least 8 correct answers to continue.";
+
+    endButton.textContent = "Retry";
+
+    endButton.onclick = ()=>{
+      window.location.reload();
+    };
+  }
+
+}
+
+</script>
+
+</body>
+</html>
